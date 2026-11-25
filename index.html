@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hina Prajapati | Data Analyst — SQL, Power BI, SAS &amp; Python</title>
+  <meta name="description" content="Portfolio of Hina Prajapati — Data Analyst turning multi-million-row SQL databases into automated pipelines and Power BI & SAS intelligence across GSTIN lead engines, GST compliance (GSTR-1 to 10), loan risk, and sales analytics." />
+
+  <!-- Google Fonts: Space Grotesk (Headings & Metrics) + Inter (Body & UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            obsidian: {
+              950: '#090D16',
+              900: '#0F172A',
+              850: '#111827',
+              800: '#1E293B',
+            },
+            cyanAccent: {
+              400: '#38BDF8',
+              500: '#0EA5E9',
+              600: '#0284C7',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Clean Bento Card Surface & Subtle Hover Elevation */
+    .bento-card {
+      background-color: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    }
+    .bento-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(56, 189, 248, 0.42);
+      box-shadow: 0 16px 36px -14px rgba(56, 189, 248, 0.16);
+    }
+
+    /* Subtle Hero Grid Backdrop */
+    .hero-grid {
+      background-image:
+        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Smooth Bar Rise Animation */
+    @keyframes barRise {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+    .bar-animate {
+      transform-origin: bottom;
+      animation: barRise 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Clean Print Styles for One-Click Resume Print/PDF Export */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      header, #hero-simulator, #toast, #pipeline-modal, #inquiry-modal, .no-print {
+        display: none !important;
+      }
+      .bento-card {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+      }
+      h1, h2, h3, h4, p, span, li {
+        color: #0f172a !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-obsidian-950 text-slate-100 font-sans antialiased selection:bg-cyanAccent-400 selection:text-obsidian-950">
+
+  <!-- Toast Notification (Replaces alert()) -->
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-50 hidden items-center gap-3 rounded-xl bg-obsidian-900 text-slate-100 px-5 py-3.5 shadow-2xl border border-cyanAccent-400/40 text-sm font-medium">
+    <i class="fa-solid fa-circle-check text-cyanAccent-400"></i>
+    <span id="toast-msg">Copied to clipboard</span>
+  </div>
+
+  <!-- Case Study Pipeline & Architecture Modal -->
+  <div id="pipeline-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+    <div class="relative w-full max-w-2xl rounded-2xl bg-obsidian-850 border border-white/15 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <button onclick="closePipelineModal()" aria-label="Close modal" class="absolute top-5 right-5 w-10 h-10 rounded-xl bg-obsidian-900 border border-white/10 text-slate-300 hover:border-cyanAccent-400 hover:text-cyanAccent-400 transition flex items-center justify-center cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <span id="modal-tag" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-cyanAccent-400/10 text-cyanAccent-400 border border-cyanAccent-400/25 mb-3">
+        Architecture Overview
+      </span>
+      <h3 id="modal-title" class="font-display text-2xl sm:text-3xl font-bold text-white mb-2"></h3>
+      <p id="modal-impact-lead" class="text-sm font-semibold text-cyanAccent-400 mb-6"></p>
+
+      <div class="space-y-4 text-sm">
+        <div class="rounded-xl bg-obsidian-900/90 p-4 border border-white/10">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">1. The Business Problem</h4>
+          <p id="modal-problem" class="text-slate-200 leading-relaxed"></p>
+        </div>
+
+        <div class="rounded-xl bg-obsidian-900/90 p-4 border border-white/10">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">2. Data Pipeline &amp; Technical Process</h4>
+          <ul id="modal-steps" class="list-disc list-inside space-y-1.5 text-slate-200 leading-relaxed"></ul>
+        </div>
+
+        <div class="rounded-xl bg-cyanAccent-400/10 p-4 border border-cyanAccent-400/25">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-cyanAccent-400 mb-1.5">3. Key Insight &amp; Operational Result</h4>
+          <p id="modal-result" class="text-white leading-relaxed"></p>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Production Stack</h4>
+          <div id="modal-tools" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+
+      <div class="mt-7 pt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+        <a href="https://github.com/Heena255/DA-ASSIGNMENT" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-semibold text-cyanAccent-400 hover:underline">
+          <i class="fa-brands fa-github"></i> Explore SQL &amp; Python Code on GitHub
+        </a>
+        <button onclick="closePipelineModal()" class="px-5 py-2.5 rounded-xl bg-cyanAccent-400 hover:bg-cyanAccent-500 text-obsidian-950 text-sm font-bold transition cursor-pointer">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Freelance / Hiring Quick Inquiry Modal -->
+  <div id="inquiry-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+    <div class="relative w-full max-w-lg rounded-2xl bg-obsidian-850 border border-white/15 p-6 sm:p-8 shadow-2xl">
+      <button onclick="closeInquiryModal()" aria-label="Close inquiry modal" class="absolute top-5 right-5 w-10 h-10 rounded-xl bg-obsidian-900 border border-white/10 text-slate-300 hover:border-cyanAccent-400 hover:text-cyanAccent-400 transition flex items-center justify-center cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-cyanAccent-400/10 text-cyanAccent-400 border border-cyanAccent-400/25 mb-3">
+        Direct Inquiry
+      </span>
+      <h3 class="font-display text-2xl font-bold text-white mb-1">Start a Conversation</h3>
+      <p class="text-sm text-slate-400 mb-5">Reach out for Data Analyst roles or freelance Power BI, SQL, and Excel automation projects.</p>
+
+      <form id="quick-inquiry-form" class="space-y-4">
+        <div>
+          <label for="m-type" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Engagement Type</label>
+          <select id="m-type" class="w-full px-4 py-3 rounded-xl bg-obsidian-900 border border-white/10 text-sm text-white focus:outline-none focus:border-cyanAccent-400">
+            <option value="Full-Time Data Analyst Opportunity">Full-Time Data Analyst Opportunity</option>
+            <option value="Freelance Power BI Dashboard Development">Freelance Power BI Dashboard Development</option>
+            <option value="SQL Database Cleaning & Query Optimization">SQL Database Cleaning &amp; Query Optimization</option>
+            <option value="Automated Excel / MIS Reporting Pipeline">Automated Excel / MIS Reporting Pipeline</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="m-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Your Name / Organization</label>
+          <input type="text" id="m-name" required placeholder="e.g., Priya Mehta / FinEdge Analytics" class="w-full px-4 py-3 rounded-xl bg-obsidian-900 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyanAccent-400" />
+        </div>
+
+        <div>
+          <label for="m-notes" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Project or Role Scope</label>
+          <textarea id="m-notes" rows="3" required placeholder="Briefly share your dataset, dashboard requirements, or role details..." class="w-full px-4 py-3 rounded-xl bg-obsidian-900 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyanAccent-400"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-cyanAccent-400 hover:bg-cyanAccent-500 text-obsidian-950 font-bold text-sm transition flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Compose Email to Hina</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STICKY GLASSMORPHIC TOP NAVIGATION -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-obsidian-950/85 border-b border-white/[0.08]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
+      <!-- Brand Mark -->
+      <a href="#top" class="flex items-center gap-3 shrink-0">
+        <span class="w-9 h-9 rounded-xl bg-cyanAccent-400 text-obsidian-950 font-display font-bold text-base flex items-center justify-center">
+          HP
+        </span>
+        <span class="font-display font-bold text-base sm:text-lg tracking-tight text-white">Hina Prajapati</span>
+      </a>
+
+      <!-- Desktop Jump Links -->
+      <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <a href="#case-studies" class="hover:text-cyanAccent-400 transition">Case Studies</a>
+        <a href="#tech-stack" class="hover:text-cyanAccent-400 transition">Tech Stack</a>
+        <a href="#experience" class="hover:text-cyanAccent-400 transition">Experience</a>
+        <a href="#services" class="hover:text-cyanAccent-400 transition">Services</a>
+        <a href="#contact" class="hover:text-cyanAccent-400 transition">Contact</a>
+      </nav>
+
+      <!-- Frictionless Direct Action Links -->
+      <div class="flex items-center gap-2">
+        <a href="https://www.linkedin.com/in/heena-prajapati25/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" title="LinkedIn" class="p-2.5 rounded-xl bg-obsidian-900 border border-white/10 text-slate-300 hover:text-cyanAccent-400 hover:border-cyanAccent-400/50 transition">
+          <i class="fa-brands fa-linkedin-in text-sm"></i>
+        </a>
+        <a href="https://github.com/Heena255/DA-ASSIGNMENT" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository" title="GitHub" class="p-2.5 rounded-xl bg-obsidian-900 border border-white/10 text-slate-300 hover:text-cyanAccent-400 hover:border-cyanAccent-400/50 transition">
+          <i class="fa-brands fa-github text-sm"></i>
+        </a>
+        <button onclick="copyEmail()" aria-label="Copy Email Address" title="Copy Email: heenaprajapati255@gmail.com" class="hidden sm:inline-flex p-2.5 rounded-xl bg-obsidian-900 border border-white/10 text-slate-300 hover:text-cyanAccent-400 hover:border-cyanAccent-400/50 transition cursor-pointer">
+          <i class="fa-regular fa-envelope text-sm"></i>
+        </button>
+        <button onclick="exportResumePdf()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-cyanAccent-400 hover:bg-cyanAccent-500 text-obsidian-950 text-xs sm:text-sm font-bold transition cursor-pointer">
+          <i class="fa-solid fa-file-arrow-down"></i>
+          <span>Download Resume</span>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-nav-btn" aria-label="Open menu" class="lg:hidden p-2.5 rounded-xl bg-obsidian-900 border border-white/10 text-slate-200 hover:border-cyanAccent-400 transition">
+          <i class="fa-solid fa-bars text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav" class="hidden lg:hidden border-t border-white/10 bg-obsidian-900 px-4 py-3 space-y-1.5">
+      <a href="#case-studies" class="m-nav-link block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-obsidian-800">Case Studies</a>
+      <a href="#tech-stack" class="m-nav-link block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-obsidian-800">Tech Stack</a>
+      <a href="#experience" class="m-nav-link block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-obsidian-800">Experience</a>
+      <a href="#services" class="m-nav-link block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-obsidian-800">Services</a>
+      <a href="#contact" class="m-nav-link block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-obsidian-800">Contact</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- VALUE-DRIVEN HERO SECTION -->
+    <section class="hero-grid border-b border-white/[0.08] py-14 sm:py-20 lg:py-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+
+          <!-- Left Column: Immediate Value Proposition (7 Cols) -->
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-obsidian-900 border border-white/10 text-xs font-medium text-cyanAccent-400">
+              <span class="w-2 h-2 rounded-full bg-cyanAccent-400"></span>
+              <span>Data Analyst at FactByte • Open to Full-Time &amp; BI Consulting</span>
+            </div>
+
+            <h1 class="font-display text-3xl sm:text-5xl lg:text-[52px] font-bold tracking-tight text-white leading-[1.12]">
+              Data Analyst turning multi-million-row SQL databases into automated pipelines and <span class="text-cyanAccent-400">Power BI &amp; SAS intelligence.</span>
+            </h1>
+
+            <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl">
+              3+ years of production experience building high-volume <strong class="text-white font-semibold">GSTIN lead engines</strong>, raw-to-metadata <strong class="text-white font-semibold">SQL Server &amp; PostgreSQL pipelines</strong>, multi-return <strong class="text-white font-semibold">GST compliance suites (GSTR-1 to 10 &amp; ITC)</strong>, and executive <strong class="text-white font-semibold">loan risk &amp; sales dashboards</strong>.
+            </p>
+
+            <!-- Primary & Secondary CTAs -->
+            <div class="flex flex-wrap items-center gap-3.5 pt-1">
+              <a href="#case-studies" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-cyanAccent-400 hover:bg-cyanAccent-500 text-obsidian-950 font-bold text-sm sm:text-base transition">
+                <span>Explore Case Studies</span>
+                <i class="fa-solid fa-arrow-down text-xs"></i>
+              </a>
+              <button onclick="openInquiryModal('Full-Time Data Analyst Opportunity')" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 text-white border border-white/15 hover:border-cyanAccent-400/50 font-semibold text-sm sm:text-base transition cursor-pointer">
+                <i class="fa-regular fa-paper-plane text-cyanAccent-400"></i>
+                <span>Hire / Freelance Inquiry</span>
+              </button>
+            </div>
+
+            <!-- Direct Social & Email Strip -->
+            <div class="flex flex-wrap items-center gap-4 pt-2 text-xs sm:text-sm text-slate-400">
+              <a href="https://github.com/Heena255/DA-ASSIGNMENT" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 hover:text-cyanAccent-400 transition">
+                <i class="fa-brands fa-github text-base text-white"></i>
+                <span>github.com/Heena255</span>
+              </a>
+              <span class="text-white/15">•</span>
+              <a href="https://www.linkedin.com/in/heena-prajapati25/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 hover:text-cyanAccent-400 transition">
+                <i class="fa-brands fa-linkedin text-base text-cyanAccent-400"></i>
+                <span>in/heena-prajapati25</span>
+              </a>
+              <span class="text-white/15">•</span>
+              <button onclick="copyEmail()" class="inline-flex items-center gap-1.5 hover:text-cyanAccent-400 transition cursor-pointer">
+                <i class="fa-regular fa-copy"></i>
+                <span>heenaprajapati255@gmail.com</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column: Interactive 3-View Live BI Simulator (5 Cols) -->
+          <div id="hero-simulator" class="lg:col-span-5">
+            <div class="rounded-2xl bg-obsidian-850 border border-white/10 p-5 sm:p-6 shadow-2xl">
+              <!-- Top Header -->
+              <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/[0.08]">
+                <div>
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-cyanAccent-400">Interactive Architecture Preview</span>
+                  <h2 id="sim-heading" class="font-display font-bold text-base text-white mt-0.5">FactByte: GSTIN Lead Engine</h2>
+                </div>
+                <span id="sim-stack-badge" class="px-2.5 py-1 rounded-lg bg-cyanAccent-400/10 border border-cyanAccent-400/25 text-cyanAccent-400 text-xs font-semibold">
+                  SQL Server + Power BI
+                </span>
+              </div>
+
+              <!-- 3 Clickable Live Simulated Views -->
+              <div class="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-obsidian-950 border border-white/[0.08] mb-5 text-[11px] font-semibold">
+                <button onclick="setSimView('factbyte')" id="sim-btn-factbyte" class="sim-tab py-2 px-2 rounded-lg bg-cyanAccent-400 text-obsidian-950 transition cursor-pointer">
+                  GSTIN Leads
+                </button>
+                <button onclick="setSimView('gst')" id="sim-btn-gst" class="sim-tab py-2 px-2 rounded-lg text-slate-400 hover:text-white transition cursor-pointer">
+                  GST &amp; ITC
+                </button>
+                <button onclick="setSimView('risk_sales')" id="sim-btn-risk_sales" class="sim-tab py-2 px-2 rounded-lg text-slate-400 hover:text-white transition cursor-pointer">
+                  Loan &amp; Sales
+                </button>
+              </div>
+
+              <!-- KPI Row -->
+              <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="rounded-xl bg-obsidian-900 p-3.5 border border-white/[0.07]">
+                  <span id="sim-kpi1-label" class="block text-xs text-slate-400">Database Coverage</span>
+                  <span id="sim-kpi1-val" class="block font-display text-xl font-bold text-white mt-1">Daily + Legacy</span>
+                  <span id="sim-kpi1-sub" class="block text-[11px] text-cyanAccent-400 mt-0.5">Deduplicated GSTIN Master</span>
+                </div>
+                <div class="rounded-xl bg-obsidian-900 p-3.5 border border-white/[0.07]">
+                  <span id="sim-kpi2-label" class="block text-xs text-slate-400">Lead Pipeline Status</span>
+                  <span id="sim-kpi2-val" class="block font-display text-xl font-bold text-cyanAccent-400 mt-1">Grabbed vs Conv.</span>
+                  <span id="sim-kpi2-sub" class="block text-[11px] text-slate-400 mt-0.5">Turnover Slab &amp; HSN Filters</span>
+                </div>
+              </div>
+
+              <!-- Simulated Visual Chart -->
+              <div class="rounded-xl bg-obsidian-900 p-4 border border-white/[0.07]">
+                <div class="flex items-center justify-between text-xs mb-3">
+                  <span id="sim-chart-title" class="font-semibold text-slate-200">Lead Conversion Funnel by Turnover Slab</span>
+                  <span id="sim-chart-tag" class="text-[11px] text-cyanAccent-400 font-medium">Live DAX View</span>
+                </div>
+                <div id="sim-bars" class="h-24 flex items-end justify-between gap-2 pt-2 px-1">
+                  <!-- Populated via JS -->
+                </div>
+                <div id="sim-labels" class="flex justify-between text-[10px] text-slate-400 mt-2 px-0.5">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+
+              <p class="text-[11px] text-slate-500 mt-3 text-center">
+                Click tabs above to preview data models across production domains.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- BENTO GRID: CORE METRICS & EXPERIENCE SNAPSHOT -->
+    <section aria-label="Core Metrics and Snapshot" class="py-12 sm:py-16 border-b border-white/[0.08]">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+
+          <!-- Metric Card 1 -->
+          <div class="bento-card rounded-2xl p-6 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center">
+                <i class="fa-solid fa-briefcase"></i>
+              </span>
+              <span class="text-xs font-semibold text-slate-400">Experience</span>
+            </div>
+            <div>
+              <div class="font-display text-3xl font-bold text-white">3+ Years</div>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                FactByte, Nupeak IT, Turakhia Overseas, Gelco Electronics &amp; Torrent Pharma
+              </p>
+            </div>
+          </div>
+
+          <!-- Metric Card 2 -->
+          <div class="bento-card rounded-2xl p-6 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center">
+                <i class="fa-solid fa-database"></i>
+              </span>
+              <span class="text-xs font-semibold text-slate-400">Data Engineering</span>
+            </div>
+            <div>
+              <div class="font-display text-3xl font-bold text-white">Multi-Million</div>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                SQL Server &amp; PostgreSQL databases, raw-to-metadata ETL &amp; deduplication pipelines
+              </p>
+            </div>
+          </div>
+
+          <!-- Metric Card 3 -->
+          <div class="bento-card rounded-2xl p-6 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center">
+                <i class="fa-solid fa-chart-pie"></i>
+              </span>
+              <span class="text-xs font-semibold text-slate-400">BI &amp; Statistics</span>
+            </div>
+            <div>
+              <div class="font-display text-3xl font-bold text-white">Power BI &amp; SAS</div>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                DAX, Power Query M, SAS v3.5/4.0, Python (Pandas) &amp; Advanced Excel automation
+              </p>
+            </div>
+          </div>
+
+          <!-- Metric Card 4 -->
+          <div class="bento-card rounded-2xl p-6 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center">
+                <i class="fa-solid fa-graduation-cap"></i>
+              </span>
+              <span class="text-xs font-semibold text-slate-400">Education</span>
+            </div>
+            <div>
+              <div class="font-display text-3xl font-bold text-white">9.00 SPI</div>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                B.E. Computer Engineering &amp; Data Analytics Certified (TOPS Technology)
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- OUTCOME-FIRST CASE STUDIES (4 DEEPLY DOCUMENTED PROJECTS) -->
+    <section id="case-studies" class="py-16 sm:py-24 border-b border-white/[0.08]">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-cyanAccent-400">Outcome-First Case Studies</span>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-2">
+              Production Dashboards &amp; Data Pipelines
+            </h2>
+          </div>
+          <p class="text-sm text-slate-400 max-w-md">
+            Structured by business impact, data engineering workflow, and measurable operational results.
+          </p>
+        </div>
+
+        <!-- Bento Case Studies Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- PROJECT 1: FactByte Enterprise GSTIN Data Warehouse & Banking Lead Intelligence -->
+          <article class="bento-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+              <!-- Key Impact Badge Leading at the Top -->
+              <div class="rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/25 px-4 py-3 mb-5">
+                <div class="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-wider text-cyanAccent-400 mb-1">
+                  <span><i class="fa-solid fa-bolt mr-1"></i> Key Impact • Current Role (FactByte)</span>
+                  <span>SQL Server + Power BI</span>
+                </div>
+                <p class="text-sm font-semibold text-white leading-snug">
+                  Engineered automated SQL extraction &amp; Power BI lead workbenches across multi-million-row daily and legacy GSTIN databases.
+                </p>
+              </div>
+
+              <h3 class="font-display text-xl sm:text-2xl font-bold text-white mb-4">
+                Enterprise GSTIN Data Warehouse &amp; Banking Lead Intelligence
+              </h3>
+
+              <!-- 3-Part Structured Narrative -->
+              <div class="space-y-3.5 text-sm leading-relaxed mb-6">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">The Business Problem</span>
+                  <p class="text-slate-300">
+                    Enterprise and banking clients required targeted, deduplicated corporate leads filtered by registration date, state, business constitution, HSN codes, and turnover slabs—alongside real-time visibility into grabbed vs. converted leads.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Process &amp; Architecture</span>
+                  <p class="text-slate-300">
+                    Managed large-scale Microsoft SQL Server databases housing daily GSTIN registrations and historical legacy datasets; built parameterized SQL extraction queries and Python/SQL cleaning pipelines; designed multi-page Power BI dashboards with DAX measures tracking agent rosters, lead conversion ratios, and taxpayer distributions.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-cyanAccent-400 block mb-0.5">Key Insight &amp; Result</span>
+                  <p class="text-slate-200">
+                    Eliminated manual query bottlenecks for client delivery and enabled instant executive visibility into lead pipeline conversion across regions.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap gap-1.5 text-xs font-medium">
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">SQL Server</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Power BI</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">DAX</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Python</span>
+              </div>
+              <button onclick="openPipelineModal('factbyte')" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-cyanAccent-400 hover:underline cursor-pointer">
+                <span>Inspect Pipeline &amp; Metrics</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+              </button>
+            </div>
+          </article>
+
+          <!-- PROJECT 2: Nupeak IT Automated GST Return & ITC Compliance Suite -->
+          <article class="bento-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+              <!-- Key Impact Badge Leading at the Top -->
+              <div class="rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/25 px-4 py-3 mb-5">
+                <div class="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-wider text-cyanAccent-400 mb-1">
+                  <span><i class="fa-solid fa-bolt mr-1"></i> Key Impact • Nupeak IT Service</span>
+                  <span>SQL + SAS + Power BI</span>
+                </div>
+                <p class="text-sm font-semibold text-white leading-snug">
+                  Standardized raw multi-return GST filings into structured SQL metadata layers powering dual SAS and Power BI audit dashboards.
+                </p>
+              </div>
+
+              <h3 class="font-display text-xl sm:text-2xl font-bold text-white mb-4">
+                Automated GST Return &amp; ITC Compliance Suite (GSTR-1, 2B, 3B, 7, 8, 9, 10)
+              </h3>
+
+              <!-- 3-Part Structured Narrative -->
+              <div class="space-y-3.5 text-sm leading-relaxed mb-6">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">The Business Problem</span>
+                  <p class="text-slate-300">
+                    Tax and compliance teams struggled to cross-verify outward supplies, auto-drafted Input Tax Credit (ITC), TDS/TCS filings, and annual returns across fragmented raw filing exports.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Process &amp; Architecture</span>
+                  <p class="text-slate-300">
+                    First cleaned, normalized, and validated raw filing tables in SQL to generate a unified metadata schema; built statistical validation reports in SAS (v3.5/4.0) and interactive Power BI dashboards covering GSTR-1, 2B, 3B, 7, 8, 9, 10, ITC claim mismatches, and turnover suppression indicators.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-cyanAccent-400 block mb-0.5">Key Insight &amp; Result</span>
+                  <p class="text-slate-200">
+                    Accelerated multi-return reconciliation cycles and surfaced high-priority ITC discrepancies and turnover variances before compliance deadlines.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap gap-1.5 text-xs font-medium">
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">SQL Metadata</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">SAS v3.5/4.0</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Power BI</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Excel</span>
+              </div>
+              <button onclick="openPipelineModal('gst')" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-cyanAccent-400 hover:underline cursor-pointer">
+                <span>Inspect Pipeline &amp; Metrics</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+              </button>
+            </div>
+          </article>
+
+          <!-- PROJECT 3: Loan Portfolio Risk & Fraud Detection Dashboard -->
+          <article class="bento-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+              <!-- Key Impact Badge Leading at the Top -->
+              <div class="rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/25 px-4 py-3 mb-5">
+                <div class="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-wider text-cyanAccent-400 mb-1">
+                  <span><i class="fa-solid fa-bolt mr-1"></i> Key Impact • Financial Risk BI</span>
+                  <span>Power BI + DAX + SQL</span>
+                </div>
+                <p class="text-sm font-semibold text-white leading-snug">
+                  Flagged anomalous transaction clusters and high-risk borrower segments across loan disbursement records.
+                </p>
+              </div>
+
+              <h3 class="font-display text-xl sm:text-2xl font-bold text-white mb-4">
+                Loan Portfolio Risk &amp; Fraud Detection Dashboard
+              </h3>
+
+              <!-- 3-Part Structured Narrative -->
+              <div class="space-y-3.5 text-sm leading-relaxed mb-6">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">The Business Problem</span>
+                  <p class="text-slate-300">
+                    Credit and risk teams needed early visibility into suspicious transaction patterns, default risk factors, and branch-level portfolio health.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Process &amp; Architecture</span>
+                  <p class="text-slate-300">
+                    Cleaned and modeled borrower and transaction tables using Power Query M and SQL; authored custom DAX risk-scoring measures and built an interactive Power BI anomaly drill-down report.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-cyanAccent-400 block mb-0.5">Key Insight &amp; Result</span>
+                  <p class="text-slate-200">
+                    Isolated key high-risk borrower attributes and streamlined fraud triage for credit analysts.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap gap-1.5 text-xs font-medium">
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Power BI</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Power Query M</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">DAX</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">SQL</span>
+              </div>
+              <button onclick="openPipelineModal('loan')" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-cyanAccent-400 hover:underline cursor-pointer">
+                <span>Inspect Pipeline &amp; Metrics</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+              </button>
+            </div>
+          </article>
+
+          <!-- PROJECT 4: Commercial Sales & Marketing Performance Analytics -->
+          <article class="bento-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+              <!-- Key Impact Badge Leading at the Top -->
+              <div class="rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/25 px-4 py-3 mb-5">
+                <div class="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-wider text-cyanAccent-400 mb-1">
+                  <span><i class="fa-solid fa-bolt mr-1"></i> Key Impact • Revenue &amp; Growth BI</span>
+                  <span>Power BI + SQL + Python</span>
+                </div>
+                <p class="text-sm font-semibold text-white leading-snug">
+                  Unified multi-channel sales and campaign funnel data to uncover top-converting customer segments and regional growth drivers.
+                </p>
+              </div>
+
+              <h3 class="font-display text-xl sm:text-2xl font-bold text-white mb-4">
+                Commercial Sales &amp; Marketing Performance Analytics
+              </h3>
+
+              <!-- 3-Part Structured Narrative -->
+              <div class="space-y-3.5 text-sm leading-relaxed mb-6">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">The Business Problem</span>
+                  <p class="text-slate-300">
+                    Commercial teams lacked a single view connecting marketing campaign CTR/acquisition costs with actual regional revenue and inventory movement.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Process &amp; Architecture</span>
+                  <p class="text-slate-300">
+                    Merged sales, customer, and campaign datasets via SQL joins and Python (Pandas); delivered executive Power BI &amp; Excel reporting tracking revenue trends, product mix, and campaign ROI.
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-cyanAccent-400 block mb-0.5">Key Insight &amp; Result</span>
+                  <p class="text-slate-200">
+                    Replaced static manual spreadsheets with automated KPI reporting to guide budget and inventory allocation.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap gap-1.5 text-xs font-medium">
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Power BI</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">SQL</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Python (Pandas)</span>
+                <span class="px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-slate-300">Excel</span>
+              </div>
+              <button onclick="openPipelineModal('sales')" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-cyanAccent-400 hover:underline cursor-pointer">
+                <span>Inspect Pipeline &amp; Metrics</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+              </button>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- GitHub Code Repository Callout -->
+        <div class="mt-8 bento-card rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-obsidian-900 border border-white/10 text-white flex items-center justify-center text-xl shrink-0">
+              <i class="fa-brands fa-github"></i>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-base text-white">SQL Queries, Python Scripts &amp; Analytics Repository</h3>
+              <p class="text-xs sm:text-sm text-slate-400">Inspect sample data cleaning scripts, analytical queries, and practice workbooks on GitHub.</p>
+            </div>
+          </div>
+          <a href="https://github.com/Heena255/DA-ASSIGNMENT" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-cyanAccent-400/40 text-cyanAccent-400 text-sm font-bold transition">
+            Open GitHub Repo &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCANNABLE SKILLS & TECH STACK (BENTO GRID — NO PERCENTAGE BARS) -->
+    <section id="tech-stack" class="py-16 sm:py-24 bg-obsidian-900/50 border-b border-white/[0.08]">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-12">
+          <span class="text-xs font-bold uppercase tracking-widest text-cyanAccent-400">Scannable Tech Stack</span>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-2">
+            Core Tools &amp; Analytical Capabilities
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Bento Skill Card 1: Databases & Data Engineering -->
+          <div class="bento-card rounded-2xl p-6 sm:p-7">
+            <div class="flex items-center gap-3.5 mb-5">
+              <span class="w-11 h-11 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-server"></i>
+              </span>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white">Databases &amp; Data Engineering</h3>
+                <p class="text-xs text-slate-400">High-volume querying, cleaning &amp; schema modeling</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Microsoft SQL Server (SSMS)</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">PostgreSQL</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Complex Joins &amp; CTEs</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Data Cleaning &amp; Metadata Modeling</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Deduplication &amp; ETL Workflows</span>
+            </div>
+          </div>
+
+          <!-- Bento Skill Card 2: BI & Visualization -->
+          <div class="bento-card rounded-2xl p-6 sm:p-7">
+            <div class="flex items-center gap-3.5 mb-5">
+              <span class="w-11 h-11 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-chart-column"></i>
+              </span>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white">BI &amp; Visualization</h3>
+                <p class="text-xs text-slate-400">Executive dashboards, statistical &amp; MIS reporting</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Power BI (DAX, Power Query M, Data Modeling)</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">SAS v3.5 / v4.0</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Advanced Excel (Pivot Tables, XLOOKUP)</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Power Query Automation</span>
+            </div>
+          </div>
+
+          <!-- Bento Skill Card 3: Programming & Analytics -->
+          <div class="bento-card rounded-2xl p-6 sm:p-7">
+            <div class="flex items-center gap-3.5 mb-5">
+              <span class="w-11 h-11 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center text-lg">
+                <i class="fa-brands fa-python"></i>
+              </span>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white">Programming &amp; Analytics</h3>
+                <p class="text-xs text-slate-400">Automated scripting, database connectors &amp; EDA</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Python</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Pandas</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">NumPy</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">SQLAlchemy &amp; PyODBC</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Exploratory Data Analysis (EDA)</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Statistical Validation</span>
+            </div>
+          </div>
+
+          <!-- Bento Skill Card 4: Domain & Business Expertise -->
+          <div class="bento-card rounded-2xl p-6 sm:p-7">
+            <div class="flex items-center gap-3.5 mb-5">
+              <span class="w-11 h-11 rounded-xl bg-cyanAccent-400/10 border border-cyanAccent-400/20 text-cyanAccent-400 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-layer-group"></i>
+              </span>
+              <div>
+                <h3 class="font-display font-bold text-lg text-white">Domain &amp; Business Expertise</h3>
+                <p class="text-xs text-slate-400">Tax compliance, banking lead ops &amp; stakeholder delivery</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">GST Compliance Analytics (GSTR-1 to 10, ITC)</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">B2B / Banking Lead Intelligence</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">MIS &amp; Executive Reporting</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200">Client Requirement Translation</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CAREER TIMELINE, CREDENTIALS & FREELANCE AVAILABILITY -->
+    <section id="experience" class="py-16 sm:py-24 border-b border-white/[0.08]">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-12">
+          <span class="text-xs font-bold uppercase tracking-widest text-cyanAccent-400">Career &amp; Credentials</span>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-2">
+            Work Experience &amp; Academic Background
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+          <!-- Career Progression (8 Cols) -->
+          <div class="lg:col-span-8 space-y-4">
+
+            <!-- Role 1: FactByte (Current) -->
+            <div class="bento-card rounded-2xl p-6 border-cyanAccent-400/30">
+              <div class="flex flex-wrap items-start justify-between gap-2 mb-2.5">
+                <div>
+                  <div class="inline-flex items-center gap-2">
+                    <h3 class="font-display text-lg font-bold text-white">Data Analyst</h3>
+                    <span class="px-2.5 py-0.5 rounded-full bg-cyanAccent-400/15 text-cyanAccent-400 text-[11px] font-bold">Current</span>
+                  </div>
+                  <p class="text-sm font-semibold text-cyanAccent-400 mt-0.5">FactByte</p>
+                </div>
+                <span class="text-xs font-medium text-slate-400 bg-obsidian-900 px-3 py-1 rounded-lg border border-white/10">
+                  Current Role
+                </span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Managing large-scale SQL Server databases for daily GSTIN registrations and historical legacy data; executing client-specific SQL data extractions and building Power BI lead intelligence dashboards.
+              </p>
+            </div>
+
+            <!-- Role 2: Nupeak IT Service Pvt Ltd -->
+            <div class="bento-card rounded-2xl p-6">
+              <div class="flex flex-wrap items-start justify-between gap-2 mb-2.5">
+                <div>
+                  <h3 class="font-display text-lg font-bold text-white">Data Analyst</h3>
+                  <p class="text-sm font-semibold text-slate-300 mt-0.5">Nupeak IT Service Pvt Ltd.</p>
+                </div>
+                <span class="text-xs font-medium text-slate-400 bg-obsidian-900 px-3 py-1 rounded-lg border border-white/10">
+                  Sep 2025 – Project Tenure
+                </span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Performed SQL data cleaning and metadata modeling from raw filing exports; built SAS (v3.5/4.0) and Power BI dashboards for GSTR-1, 2B, 3B, 7, 8, 9, 10, ITC reconciliation, and turnover variance.
+              </p>
+            </div>
+
+            <!-- Role 3: Turakhia Overseas -->
+            <div class="bento-card rounded-2xl p-6">
+              <div class="flex flex-wrap items-start justify-between gap-2 mb-2.5">
+                <div>
+                  <h3 class="font-display text-lg font-bold text-white">Operations &amp; Data Reporting Analyst</h3>
+                  <p class="text-sm font-semibold text-slate-300 mt-0.5">Turakhia Overseas</p>
+                </div>
+                <span class="text-xs font-medium text-slate-400 bg-obsidian-900 px-3 py-1 rounded-lg border border-white/10">
+                  May 2023 – Apr 2025
+                </span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Managed procurement records, supplier datasets, and inventory metrics using structured Excel models, Pivot Tables, and analytical charts to guide purchasing decisions.
+              </p>
+            </div>
+
+            <!-- Role 4: Gelco Electronics -->
+            <div class="bento-card rounded-2xl p-6">
+              <div class="flex flex-wrap items-start justify-between gap-2 mb-2.5">
+                <div>
+                  <h3 class="font-display text-lg font-bold text-white">Data &amp; Marketing Analyst</h3>
+                  <p class="text-sm font-semibold text-slate-300 mt-0.5">Gelco Electronics</p>
+                </div>
+                <span class="text-xs font-medium text-slate-400 bg-obsidian-900 px-3 py-1 rounded-lg border border-white/10">
+                  Oct 2022 – Apr 2023
+                </span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Collected, cleaned, and analyzed sales and customer datasets to uncover key market trends and deliver structured reports supporting marketing strategy.
+              </p>
+            </div>
+
+            <!-- Role 5: Torrent Pharma -->
+            <div class="bento-card rounded-2xl p-6">
+              <div class="flex flex-wrap items-start justify-between gap-2 mb-2.5">
+                <div>
+                  <h3 class="font-display text-lg font-bold text-white">Data Reporting Executive</h3>
+                  <p class="text-sm font-semibold text-slate-300 mt-0.5">Torrent Pharma</p>
+                </div>
+                <span class="text-xs font-medium text-slate-400 bg-obsidian-900 px-3 py-1 rounded-lg border border-white/10">
+                  Sep 2021 – Sep 2022
+                </span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Managed large operational datasets and automated daily/weekly reporting workflows using advanced Excel formulas and data validation rules.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Education, Certification & Location Bento Stack (4 Cols) -->
+          <div class="lg:col-span-4 space-y-4">
+
+            <!-- B.E. Credential -->
+            <div class="bento-card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-3 py-1 rounded-lg bg-cyanAccent-400/15 text-cyanAccent-400 text-xs font-bold">
+                  9.00 SPI
+                </span>
+                <span class="text-xs text-slate-400">Bachelor's Degree</span>
+              </div>
+              <h3 class="font-display text-lg font-bold text-white">B.E. Computer Engineering</h3>
+              <p class="text-xs text-slate-400 mt-1">Swaminarayan College of Engineering</p>
+            </div>
+
+            <!-- Diploma Credential -->
+            <div class="bento-card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-3 py-1 rounded-lg bg-cyanAccent-400/15 text-cyanAccent-400 text-xs font-bold">
+                  8.04 SPI
+                </span>
+                <span class="text-xs text-slate-400">Diploma</span>
+              </div>
+              <h3 class="font-display text-lg font-bold text-white">Diploma Computer Engineering</h3>
+              <p class="text-xs text-slate-400 mt-1">Swaminarayan College of Engineering</p>
+            </div>
+
+            <!-- Certification -->
+            <div class="bento-card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-3 py-1 rounded-lg bg-white/10 text-white text-xs font-bold">
+                  Certification
+                </span>
+                <span class="text-xs text-slate-400">TOPS Technology</span>
+              </div>
+              <h3 class="font-display text-lg font-bold text-white">Data Analytics Certification</h3>
+              <p class="text-xs text-slate-400 mt-1">End-to-end training in SQL, Python, Power BI, and Excel analytics.</p>
+            </div>
+
+            <!-- Base Location & Social Proof Card -->
+            <div class="bento-card rounded-2xl p-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-cyanAccent-400 block mb-2">Base &amp; Availability</span>
+              <p class="text-sm font-semibold text-white">Ahmedabad / Gandhinagar, Gujarat</p>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                Available for Onsite / Hybrid roles in Gujarat and Remote BI consulting engagements worldwide.
+              </p>
+              <div class="mt-4 pt-4 border-t border-white/10 flex items-center gap-3">
+                <a href="https://www.linkedin.com/in/heena-prajapati25/" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-cyanAccent-400 hover:underline">
+                  LinkedIn &rarr;
+                </a>
+                <span class="text-white/15">|</span>
+                <a href="https://github.com/Heena255/DA-ASSIGNMENT" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-cyanAccent-400 hover:underline">
+                  GitHub &rarr;
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FREELANCE & CONSULTING AVAILABILITY BENTO BANNER -->
+    <section id="services" class="py-16 sm:py-20 bg-obsidian-900/50 border-b border-white/[0.08]">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bento-card rounded-3xl p-7 sm:p-10 border-cyanAccent-400/30">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 mb-8 border-b border-white/10">
+            <div class="space-y-2 max-w-2xl">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyanAccent-400/10 border border-cyanAccent-400/25 text-cyanAccent-400 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-cyanAccent-400"></span>
+                Freelance &amp; Consulting Availability
+              </span>
+              <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">
+                Need custom dashboards, SQL optimization, or automated MIS?
+              </h2>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Alongside full-time analytics roles, I partner with startups, SMEs, and accounting/finance teams on focused BI deliverables.
+              </p>
+            </div>
+            <button onclick="openInquiryModal('Freelance Power BI Dashboard Development')" class="shrink-0 inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-cyanAccent-400 hover:bg-cyanAccent-500 text-obsidian-950 font-bold text-sm transition cursor-pointer">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Request a Project Quote</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Service Pillar 1 -->
+            <div class="rounded-2xl bg-obsidian-900/90 p-5 border border-white/[0.07] flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 text-cyanAccent-400 flex items-center justify-center mb-3.5">
+                  <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <h3 class="font-display font-bold text-base text-white mb-1.5">Power BI Dashboard Development</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  Interactive star-schema Power BI reports with custom DAX KPIs, drill-through pages, and automated refresh schedules.
+                </p>
+              </div>
+              <button onclick="openInquiryModal('Freelance Power BI Dashboard Development')" class="mt-4 text-left text-xs font-bold text-cyanAccent-400 hover:underline cursor-pointer">
+                Inquire about Power BI &rarr;
+              </button>
+            </div>
+
+            <!-- Service Pillar 2 -->
+            <div class="rounded-2xl bg-obsidian-900/90 p-5 border border-white/[0.07] flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 text-cyanAccent-400 flex items-center justify-center mb-3.5">
+                  <i class="fa-solid fa-database"></i>
+                </div>
+                <h3 class="font-display font-bold text-base text-white mb-1.5">SQL Database Cleaning &amp; Query Optimization</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  Deduplicating multi-million-row SQL Server / PostgreSQL tables, structuring metadata views, and speeding up slow reporting queries.
+                </p>
+              </div>
+              <button onclick="openInquiryModal('SQL Database Cleaning & Query Optimization')" class="mt-4 text-left text-xs font-bold text-cyanAccent-400 hover:underline cursor-pointer">
+                Inquire about SQL &rarr;
+              </button>
+            </div>
+
+            <!-- Service Pillar 3 -->
+            <div class="rounded-2xl bg-obsidian-900/90 p-5 border border-white/[0.07] flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 text-cyanAccent-400 flex items-center justify-center mb-3.5">
+                  <i class="fa-solid fa-file-excel"></i>
+                </div>
+                <h3 class="font-display font-bold text-base text-white mb-1.5">Automated Excel / MIS Pipelines</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  Replacing manual copy-paste spreadsheets with Power Query, Python (Pandas), and dynamic Excel MIS dashboards.
+                </p>
+              </div>
+              <button onclick="openInquiryModal('Automated Excel / MIS Reporting Pipeline')" class="mt-4 text-left text-xs font-bold text-cyanAccent-400 hover:underline cursor-pointer">
+                Inquire about MIS Automation &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FRICTIONLESS CONTACT SECTION -->
+    <section id="contact" class="py-16 sm:py-20">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bento-card rounded-3xl p-7 sm:p-10">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-7 space-y-4">
+              <span class="text-xs font-bold uppercase tracking-widest text-cyanAccent-400">Direct Contact</span>
+              <h2 class="font-display text-3xl sm:text-4xl font-bold text-white">
+                Let's turn your data into clear decisions.
+              </h2>
+              <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                Reach out directly via email or LinkedIn for Data Analyst opportunities, SQL/Power BI consulting, or technical discussions.
+              </p>
+
+              <div class="flex flex-wrap items-center gap-3 pt-2">
+                <a href="mailto:heenaprajapati255@gmail.com" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-cyanAccent-400 hover:bg-cyanAccent-500 text-obsidian-950 font-bold text-sm transition">
+                  <i class="fa-regular fa-envelope"></i>
+                  <span>heenaprajapati255@gmail.com</span>
+                </a>
+                <button onclick="copyEmail()" class="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/10 text-slate-200 text-sm font-semibold transition cursor-pointer">
+                  <i class="fa-regular fa-copy text-cyanAccent-400"></i>
+                  <span>Copy Email</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5 space-y-3">
+              <a href="https://www.linkedin.com/in/heena-prajapati25/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-4 rounded-2xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/10 transition">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 text-cyanAccent-400 flex items-center justify-center">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                  </span>
+                  <div>
+                    <span class="block text-sm font-bold text-white">LinkedIn</span>
+                    <span class="block text-xs text-slate-400">in/heena-prajapati25</span>
+                  </div>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400"></i>
+              </a>
+
+              <a href="https://github.com/Heena255/DA-ASSIGNMENT" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-4 rounded-2xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/10 transition">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-cyanAccent-400/10 text-cyanAccent-400 flex items-center justify-center">
+                    <i class="fa-brands fa-github"></i>
+                  </span>
+                  <div>
+                    <span class="block text-sm font-bold text-white">GitHub</span>
+                    <span class="block text-xs text-slate-400">Heena255/DA-ASSIGNMENT</span>
+                  </div>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400"></i>
+              </a>
+
+              <button onclick="openInquiryModal('Full-Time Data Analyst Opportunity')" class="w-full flex items-center justify-between p-4 rounded-2xl bg-obsidian-900 hover:bg-obsidian-800 border border-cyanAccent-400/30 transition cursor-pointer">
+                <div class="flex items-center gap-3 text-left">
+                  <span class="w-10 h-10 rounded-xl bg-cyanAccent-400/15 text-cyanAccent-400 flex items-center justify-center">
+                    <i class="fa-solid fa-message"></i>
+                  </span>
+                  <div>
+                    <span class="block text-sm font-bold text-white">Send Quick Scope / Inquiry</span>
+                    <span class="block text-xs text-slate-400">Pre-formatted email builder</span>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-cyanAccent-400"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FRICTIONLESS FOOTER -->
+  <footer class="border-t border-white/[0.08] bg-obsidian-950 py-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+        <span class="w-8 h-8 rounded-lg bg-cyanAccent-400 text-obsidian-950 font-display font-bold text-sm flex items-center justify-center">
+          HP
+        </span>
+        <div>
+          <span class="text-sm font-semibold text-white">Hina Prajapati</span>
+          <span class="text-xs text-slate-400 block sm:inline sm:ml-2">• Ahmedabad / Gandhinagar, Gujarat</span>
+        </div>
+      </div>
+
+      <!-- Quick Jump Links -->
+      <div class="flex flex-wrap justify-center gap-5 text-xs font-medium text-slate-400">
+        <a href="#case-studies" class="hover:text-cyanAccent-400 transition">Case Studies</a>
+        <a href="#tech-stack" class="hover:text-cyanAccent-400 transition">Tech Stack</a>
+        <a href="#experience" class="hover:text-cyanAccent-400 transition">Experience</a>
+        <a href="#services" class="hover:text-cyanAccent-400 transition">Services</a>
+        <a href="#top" class="hover:text-cyanAccent-400 transition">Top &uarr;</a>
+      </div>
+
+      <!-- Direct Socials & Email -->
+      <div class="flex items-center gap-4 text-sm text-slate-400">
+        <a href="https://www.linkedin.com/in/heena-prajapati25/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="hover:text-cyanAccent-400 transition">
+          <i class="fa-brands fa-linkedin text-base"></i>
+        </a>
+        <a href="https://github.com/Heena255/DA-ASSIGNMENT" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="hover:text-cyanAccent-400 transition">
+          <i class="fa-brands fa-github text-base"></i>
+        </a>
+        <a href="mailto:heenaprajapati255@gmail.com" aria-label="Email" class="hover:text-cyanAccent-400 transition">
+          <i class="fa-regular fa-envelope text-base"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    // 1. Mobile Navigation Toggle
+    const mobileNavBtn = document.getElementById('mobile-nav-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    mobileNavBtn.addEventListener('click', () => {
+      mobileNav.classList.toggle('hidden');
+    });
+    document.querySelectorAll('.m-nav-link').forEach(link => {
+      link.addEventListener('click', () => mobileNav.classList.add('hidden'));
+    });
+
+    // 2. Toast Notification Helper
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3000);
+    }
+
+    // 3. Copy Email to Clipboard
+    function copyEmail() {
+      const email = 'heenaprajapati255@gmail.com';
+      const temp = document.createElement('input');
+      temp.value = email;
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand('copy');
+        showToast('Copied: heenaprajapati255@gmail.com');
+      } catch (e) {
+        showToast('Email: heenaprajapati255@gmail.com');
+      }
+      document.body.removeChild(temp);
+    }
+
+    // 4. Print / Save Resume as PDF
+    function exportResumePdf() {
+      showToast('Opening print dialog — choose "Save as PDF"');
+      setTimeout(() => {
+        window.print();
+      }, 350);
+    }
+
+    // 5. Hero 3-View Live Simulated Dashboard Switcher
+    const simConfigs = {
+      factbyte: {
+        heading: 'FactByte: GSTIN Lead Engine',
+        badge: 'SQL Server + Power BI',
+        kpi1Label: 'Database Coverage',
+        kpi1Val: 'Daily + Legacy',
+        kpi1Sub: 'Deduplicated GSTIN Master',
+        kpi2Label: 'Lead Pipeline Status',
+        kpi2Val: 'Grabbed vs Conv.',
+        kpi2Sub: 'Turnover Slab & HSN Filters',
+        chartTitle: 'Lead Conversion Funnel by Turnover Slab',
+        chartTag: 'Client SQL Workbench',
+        bars: [92, 78, 84, 68, 95, 81],
+        labels: ['<40L', '40L-1.5Cr', '1.5-5Cr', '5-25Cr', '25Cr+', 'Export']
+      },
+      gst: {
+        heading: 'GST Return & ITC Audit (SAS + Power BI)',
+        badge: 'SQL Metadata + SAS + BI',
+        kpi1Label: 'Returns Modeled',
+        kpi1Val: 'GSTR-1 to 10',
+        kpi1Sub: '1, 2B, 3B, 7, 8, 9 & 10',
+        kpi2Label: 'Audit Diagnostics',
+        kpi2Val: 'ITC & Variance',
+        kpi2Sub: '2B vs 3B & Turnover Checks',
+        chartTitle: 'Return Reconciliation & ITC Match Index',
+        chartTag: 'SAS + Power BI',
+        bars: [96, 94, 98, 91, 93, 97],
+        labels: ['GSTR-1', 'GSTR-2B', 'GSTR-3B', '7 & 8', 'GSTR-9', 'GSTR-10']
+      },
+      risk_sales: {
+        heading: 'Loan Risk & Sales Analytics',
+        badge: 'Power BI + Python + SQL',
+        kpi1Label: 'Loan Risk Triage',
+        kpi1Val: 'Anomaly Flags',
+        kpi1Sub: 'DAX Borrower Risk Scoring',
+        kpi2Label: 'Commercial Growth',
+        kpi2Val: 'CTR + Revenue',
+        kpi2Sub: 'Regional & Campaign ROI',
+        chartTitle: 'Regional Sales & Portfolio Risk Index',
+        chartTag: 'Executive BI',
+        bars: [85, 72, 91, 64, 88, 94],
+        labels: ['West', 'North', 'South', 'East', 'Central', 'Metro']
+      }
+    };
+
+    function setSimView(key) {
+      const cfg = simConfigs[key];
+      if (!cfg) return;
+
+      document.querySelectorAll('.sim-tab').forEach(btn => {
+        btn.classList.remove('bg-cyanAccent-400', 'text-obsidian-950');
+        btn.classList.add('text-slate-400');
+      });
+      const activeBtn = document.getElementById('sim-btn-' + key);
+      activeBtn.classList.add('bg-cyanAccent-400', 'text-obsidian-950');
+      activeBtn.classList.remove('text-slate-400');
+
+      document.getElementById('sim-heading').textContent = cfg.heading;
+      document.getElementById('sim-stack-badge').textContent = cfg.badge;
+      document.getElementById('sim-kpi1-label').textContent = cfg.kpi1Label;
+      document.getElementById('sim-kpi1-val').textContent = cfg.kpi1Val;
+      document.getElementById('sim-kpi1-sub').textContent = cfg.kpi1Sub;
+      document.getElementById('sim-kpi2-label').textContent = cfg.kpi2Label;
+      document.getElementById('sim-kpi2-val').textContent = cfg.kpi2Val;
+      document.getElementById('sim-kpi2-sub').textContent = cfg.kpi2Sub;
+      document.getElementById('sim-chart-title').textContent = cfg.chartTitle;
+      document.getElementById('sim-chart-tag').textContent = cfg.chartTag;
+
+      const barsEl = document.getElementById('sim-bars');
+      const labelsEl = document.getElementById('sim-labels');
+      barsEl.innerHTML = '';
+      labelsEl.innerHTML = '';
+
+      cfg.bars.forEach((pct, idx) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'flex-1 h-full flex items-end';
+        const bar = document.createElement('div');
+        bar.className = 'w-full rounded-t-md bg-cyanAccent-400 bar-animate';
+        bar.style.height = pct + '%';
+        bar.style.opacity = idx % 2 === 0 ? '1' : '0.72';
+        wrap.appendChild(bar);
+        barsEl.appendChild(wrap);
+
+        const lbl = document.createElement('span');
+        lbl.textContent = cfg.labels[idx];
+        labelsEl.appendChild(lbl);
+      });
+    }
+
+    // Initialize default view
+    setSimView('factbyte');
+
+    // 6. Case Study Pipeline Modal Logic
+    const pipelineData = {
+      factbyte: {
+        tag: 'Current Role • FactByte',
+        title: 'Enterprise GSTIN Data Warehouse & Banking Lead Intelligence',
+        impactLead: 'Engineered automated SQL extraction & Power BI lead workbenches across multi-million-row daily and legacy GSTIN databases.',
+        problem: 'Enterprise and banking clients required targeted, deduplicated corporate leads filtered by registration date, state, business constitution, HSN codes, and turnover slabs—alongside real-time tracking of grabbed vs. converted leads.',
+        steps: [
+          'Administered large-scale Microsoft SQL Server databases containing daily GSTIN registration feeds and historical legacy records.',
+          'Built parameterized SQL extraction queries and Python/SQL cleaning & deduplication workflows tailored to client segmentation rules.',
+          'Developed multi-page Power BI dashboards with DAX measures monitoring agent rosters, lead grab velocity, conversion ratios, and regional taxpayer distributions.'
+        ],
+        result: 'Eliminated manual query bottlenecks for client delivery and enabled instant executive visibility into lead pipeline conversion across regions.',
+        tools: ['Microsoft SQL Server (SSMS)', 'Power BI', 'DAX', 'Power Query M', 'Python (Pandas / PyODBC)']
+      },
+      gst: {
+        tag: 'Nupeak IT Service Pvt Ltd.',
+        title: 'Automated GST Return & ITC Compliance Suite (GSTR-1, 2B, 3B, 7, 8, 9, 10)',
+        impactLead: 'Standardized raw multi-return GST filings into structured SQL metadata layers powering dual SAS and Power BI audit dashboards.',
+        problem: 'Tax and compliance teams struggled to cross-verify outward supplies, auto-drafted Input Tax Credit (ITC), TDS/TCS filings, and annual returns across fragmented raw filing exports.',
+        steps: [
+          'Cleaned, normalized, and validated raw filing tables in SQL to build a unified metadata schema across GSTR-1, 2B, 3B, 7, 8, 9, and 10.',
+          'Built statistical validation reports in SAS (v3.5/4.0) to verify return consistency and tax liability reconciliations.',
+          'Designed interactive Power BI dashboards highlighting ITC claim mismatches (2B vs 3B) and turnover suppression indicators.'
+        ],
+        result: 'Accelerated multi-return reconciliation cycles and surfaced high-priority ITC discrepancies and turnover variances before compliance deadlines.',
+        tools: ['SQL Metadata Modeling', 'SAS v3.5 / v4.0', 'Power BI', 'DAX', 'Advanced Excel']
+      },
+      loan: {
+        tag: 'Financial Risk BI',
+        title: 'Loan Portfolio Risk & Fraud Detection Dashboard',
+        impactLead: 'Flagged anomalous transaction clusters and high-risk borrower segments across loan disbursement records.',
+        problem: 'Credit and risk teams needed early visibility into suspicious transaction patterns, default risk factors, and branch-level portfolio health.',
+        steps: [
+          'Cleaned and modeled borrower demographics, loan tiers, and repayment transaction tables using Power Query M and SQL.',
+          'Authored custom DAX risk-scoring measures to highlight irregular repayment behavior and high-exposure cohorts.',
+          'Built an interactive Power BI anomaly drill-down report for branch and segment-level triage.'
+        ],
+        result: 'Isolated key high-risk borrower attributes and streamlined fraud triage for credit analysts.',
+        tools: ['Power BI', 'Power Query M', 'DAX', 'SQL']
+      },
+      sales: {
+        tag: 'Commercial & Marketing Analytics',
+        title: 'Commercial Sales & Marketing Performance Analytics',
+        impactLead: 'Unified multi-channel sales and campaign funnel data to uncover top-converting customer segments and regional growth drivers.',
+        problem: 'Commercial teams lacked a single view connecting marketing campaign CTR/acquisition costs with actual regional revenue and inventory movement.',
+        steps: [
+          'Merged sales, customer, and ad campaign datasets via SQL joins and Python (Pandas) transformation scripts.',
+          'Calculated CTR, conversion funnels, product mix, and regional revenue growth metrics.',
+          'Delivered executive Power BI and structured Excel reporting to guide marketing budget and inventory planning.'
+        ],
+        result: 'Replaced static manual spreadsheets with automated KPI reporting to guide budget and inventory allocation.',
+        tools: ['Power BI', 'SQL', 'PostgreSQL', 'Python (Pandas)', 'Advanced Excel']
+      }
+    };
+
+    function openPipelineModal(key) {
+      const item = pipelineData[key];
+      if (!item) return;
+
+      document.getElementById('modal-tag').textContent = item.tag;
+      document.getElementById('modal-title').textContent = item.title;
+      document.getElementById('modal-impact-lead').textContent = item.impactLead;
+      document.getElementById('modal-problem').textContent = item.problem;
+      document.getElementById('modal-result').textContent = item.result;
+
+      const stepsEl = document.getElementById('modal-steps');
+      stepsEl.innerHTML = '';
+      item.steps.forEach(step => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        stepsEl.appendChild(li);
+      });
+
+      const toolsEl = document.getElementById('modal-tools');
+      toolsEl.innerHTML = '';
+      item.tools.forEach(tool => {
+        const span = document.createElement('span');
+        span.className = 'px-3 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-xs font-medium text-slate-200';
+        span.textContent = tool;
+        toolsEl.appendChild(span);
+      });
+
+      const modal = document.getElementById('pipeline-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closePipelineModal() {
+      const modal = document.getElementById('pipeline-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.getElementById('pipeline-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'pipeline-modal') closePipelineModal();
+    });
+
+    // 7. Quick Inquiry Modal Logic
+    function openInquiryModal(defaultType) {
+      const selectEl = document.getElementById('m-type');
+      if (defaultType && selectEl) {
+        for (let i = 0; i < selectEl.options.length; i++) {
+          if (selectEl.options[i].value === defaultType) {
+            selectEl.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      const modal = document.getElementById('inquiry-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeInquiryModal() {
+      const modal = document.getElementById('inquiry-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.getElementById('inquiry-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'inquiry-modal') closeInquiryModal();
+    });
+
+    document.getElementById('quick-inquiry-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const type = document.getElementById('m-type').value;
+      const name = document.getElementById('m-name').value.trim();
+      const notes = document.getElementById('m-notes').value.trim();
+
+      const subject = `[Portfolio Inquiry] ${type} — ${name}`;
+      const body = `Hi Hina,\n\nEngagement Type: ${type}\nFrom: ${name}\n\nDetails:\n${notes}\n\nBest regards,\n${name}`;
+      window.location.href = `mailto:heenaprajapati255@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      closeInquiryModal();
+      showToast('Opening your email client...');
+    });
+  </script>
+</body>
+</html>
